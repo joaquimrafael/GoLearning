@@ -1,5 +1,26 @@
 # Go Guide: From Beginning
 
+## Sobre a linguagem
+
+Go (ou Golang) é uma linguagem criada no Google (2009), pensada para ser simples,
+rápida de compilar e boa para sistemas concorrentes/servidores.
+
+- **Compilada** para binário nativo (não roda em VM, diferente de C#/Java). Gera um
+  executável único, sem runtime externo.
+- **Tipagem estática e forte**: o tipo é checado em tempo de compilação e não há
+  conversões implícitas (preciso converter na mão, ex.: `float64(x)`).
+- **Inferência de tipo**: mesmo sendo estática, o `:=` deduz o tipo pelo valor.
+- **Garbage collector**: gerencia a memória pra mim (não dou `free` como em C).
+- **Não é orientada a objetos no sentido clássico**: não tem classes nem herança. Tem
+  `structs` + `methods` + `interfaces`, e o reuso vem de **composição**, não de herança.
+- **Concorrência nativa**: `goroutines` e `channels` fazem parte da linguagem.
+- **Opinativa por padrão**: vem com `gofmt` (formatação única), e código com imports ou
+  variáveis não usados **não compila**.
+
+> Vindo de **C#**: a sintaxe lembra mais C, mas a experiência (tipagem forte, GC,
+> ferramentas integradas) é familiar. As maiores diferenças são a ausência de classes/
+> herança e o fato de o binário ser nativo e autossuficiente.
+
 ## Comandos
 
 ### Compile
