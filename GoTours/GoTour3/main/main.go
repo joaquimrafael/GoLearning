@@ -126,9 +126,7 @@ func main() {
 	// --- Slice nil ---
 	var sling []int
 	fmt.Println(sling, len(sling), cap(sling))
-	if sling == nil {
-		fmt.Println("nil!")
-	}
+	fmt.Println("nil!")
 
 	// --- make (slices dinamicos) ---
 	makeSlice := make([]int, 5)
