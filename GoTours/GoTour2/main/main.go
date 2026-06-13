@@ -6,12 +6,14 @@ import (
 	"runtime"
 )
 
+// defer: "world" so imprime depois do "hello" (quando hello retorna)
 func hello() {
 	defer fmt.Println("world")
 
 	fmt.Println("hello")
 }
 
+// defers empilham (LIFO): imprime 9, 8, ... 0 ao final
 func counting() {
 	fmt.Println("counting")
 
@@ -22,7 +24,8 @@ func counting() {
 	fmt.Println("done")
 }
 
-func os() {
+// switch com atribuicao no inicio (os := runtime.GOOS)
+func printOS() {
 	fmt.Print("Go runs on ")
 	switch os := runtime.GOOS; os {
 	case "darwin":
@@ -44,6 +47,7 @@ func isEven(num int) bool {
 	}
 }
 
+// Sqrt: raiz quadrada pelo metodo de Newton
 func Sqrt(x float64) float64 {
 	z := 1.0
 	var y float64
@@ -55,27 +59,32 @@ func Sqrt(x float64) float64 {
 }
 
 func main() {
+	// --- for classico (init; condition; post) ---
 	sum := 0
 	for i := 1; i < 10; i++ {
 		sum += i
 		fmt.Println(sum)
 	}
 
+	// --- for como "while" (so a condicao) ---
 	sum = 1
 	for sum < 1000 {
 		sum += sum
 	}
 	fmt.Println(sum)
 
+	// --- if/else ---
 	fmt.Println("2 e par? ", isEven(2))
 	fmt.Println("3 e par? ", isEven(3))
 
+	// --- comparando minha Sqrt com a da stdlib ---
 	fmt.Println()
 	fmt.Println(Sqrt(2))
 	fmt.Println(math.Sqrt(2))
 	fmt.Println()
 
-	os()
+	// --- switch e defers ---
+	printOS()
 	hello()
 	counting()
 }

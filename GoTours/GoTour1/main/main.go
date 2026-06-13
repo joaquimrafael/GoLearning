@@ -7,7 +7,9 @@ import (
 	"math/cmplx"
 )
 
-var legal, bonito bool
+// --- Variaveis de pacote ---
+
+var legal, bonito bool // sem valor: ambas false
 
 var i, j int = 1, 2
 
@@ -20,13 +22,14 @@ var (
 const pi = 3.14
 
 func main() {
+	// --- usando funcoes do pacote bib ---
 	fmt.Printf("A soma de 76 e 24 e: %d\n", bib.Add(76, 24))
 	resultado := bib.Add(-1, 21)
 	fmt.Println(resultado)
 	resultado = bib.Subtract(12, 8)
 	fmt.Println(resultado)
 
-	a, b := bib.Swap("hello", "world")
+	a, b := bib.Swap("hello", "world") // multiplos retornos
 	println(a, b)
 
 	fmt.Println(bib.Split(17))
@@ -34,15 +37,18 @@ func main() {
 
 	println(i, bonito)
 
-	var c, python, java = true, false, "no!"
-	k := 3
+	// --- declaracao de variaveis ---
+	var c, python, java = true, false, "no!" // tipos inferidos
+	k := 3                                   // short declaration
 	fmt.Println(i, j, c, python, java, k)
 
+	// --- %T mostra o tipo, %v o valor ---
 	fmt.Println()
 	fmt.Printf("Type: %T Value: %v\n", ToBe, ToBe)
 	fmt.Printf("Type: %T Value: %v\n", MaxInt, MaxInt)
 	fmt.Printf("Type: %T Value: %v\n", z, z)
 
+	// --- valores zero (int, float, bool, string) ---
 	fmt.Println()
 	var initial int
 	var f float64
@@ -50,12 +56,14 @@ func main() {
 	var s string
 	fmt.Printf("%v %v %v %q\n", initial, f, bo, s)
 
+	// --- conversao de tipo (int -> float64 -> uint) ---
 	fmt.Println()
 	var x, y int = 3, 4
 	var fl float64 = math.Sqrt(float64(x*x + y*y))
 	var z uint = uint(fl)
 	fmt.Println(x, y, z)
 
+	// --- constante local ---
 	const name = "Joaquim"
 	fmt.Printf("\nOla %s o Pi sempre eh %.2f\n", name, pi)
 }
