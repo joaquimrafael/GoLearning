@@ -512,3 +512,57 @@ fmt.Println(len(set)) // 1
 
 > Em C# isso equivale ao `HashSet<T>`. Em Go não há um tipo pronto, então o `map` faz
 > esse papel.
+
+## Leitura de valores do console (Console input)
+
+Posso ler valores do console de três formas, cada uma com um propósito:
+
+**1. `fmt.Scan` — leio valores separados por espaço**
+
+Passo o **endereço** das variáveis (`&`) e o `Scan` preenche cada uma, separando a
+entrada por whitespace (espaço ou quebra de linha):
+
+```go
+var nome string
+var idade int
+
+fmt.Print("Nome e idade: ")
+fmt.Scan(&nome, &idade) // entrada: "joaquim 30"
+
+fmt.Println(nome, idade) // joaquim 30
+```
+
+**2. `bufio.Scanner` — leio a linha inteira**
+
+Útil quando o texto tem espaços e eu quero a linha toda (incluindo o que o `Scan`
+cortaria no espaço):
+
+```go
+scanner := bufio.NewScanner(os.Stdin)
+scanner.Scan()           // lê uma linha
+linha := scanner.Text()  // a linha já vem sem o '\n'
+
+fmt.Println(linha)
+```
+
+**3. `bufio.Reader` — leio até um caractere definido**
+
+Aqui eu escolho o delimitador (ex.: `'\n'`). O `ReadString` devolve tudo até ele,
+**incluindo** o próprio delimitador:
+
+```go
+reader := bufio.NewReader(os.Stdin)
+linha, _ := reader.ReadString('\n') // lê até a quebra de linha
+
+fmt.Print(linha)
+```
+
+- O `&` no `fmt.Scan` é obrigatório porque o Go passa argumentos **por valor**; sem o
+  endereço, a função não conseguiria alterar a minha variável original.
+- O `bufio.Scanner` já tira o `\n`; o `bufio.Reader` (`ReadString`) **mantém** o
+  delimitador — se eu não quiser, uso `strings.TrimSpace`.
+
+> Em C# isso lembra o `Console.ReadLine()` (linha inteira, como o `Scanner`) e o
+> `Console.Read()` (caractere a caractere). O `fmt.Scan`, lendo por espaços direto nas
+> variáveis, parece com um `Console.ReadLine().Split(' ')` já convertido para os tipos.
+
