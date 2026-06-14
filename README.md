@@ -565,4 +565,3 @@ fmt.Print(linha)
 > Em C# isso lembra o `Console.ReadLine()` (linha inteira, como o `Scanner`) e o
 > `Console.Read()` (caractere a caractere). O `fmt.Scan`, lendo por espaços direto nas
 > variáveis, parece com um `Console.ReadLine().Split(' ')` já convertido para os tipos.
-
