@@ -1,6 +1,6 @@
 # Go Guide: From Beginning
 
-## Sobre a linguagem
+## Sobre a linguagem (About the language)
 
 Go (ou Golang) é uma linguagem criada no Google (2009), pensada para ser simples,
 rápida de compilar e boa para sistemas concorrentes/servidores.
@@ -21,47 +21,47 @@ rápida de compilar e boa para sistemas concorrentes/servidores.
 > ferramentas integradas) é familiar. As maiores diferenças são a ausência de classes/
 > herança e o fato de o binário ser nativo e autossuficiente.
 
-## Comandos
+## Comandos (Commands)
 
-### Compile
+### Compilar (Compile)
 
 ```sh
 go build program.go
 ```
 
-### Run
+### Executar (Run)
 
 ```sh
 ./executable
 ```
 
-### Compile and Run
+### Compilar e executar (Compile and Run)
 
 ```sh
 go run program.go
 ```
 
-### Init mod
+### Iniciar módulo (Init mod)
 
 ```sh
 go mod init "module_name"
 ```
 
-### Format Code
+### Formatar código (Format Code)
 
 ```sh
 go fmt program.go
 go fmt ./...   # todos os arquivos do diretório
 ```
 
-### Search non syntax bugs
+### Procurar bugs não sintáticos (Search non syntax bugs)
 
 ```sh
 go vet program.go
 go vet ./...   # todos os arquivos do diretório
 ```
 
-## Tipos
+## Tipos (Types)
 
 Declaramos os tipos **depois** das variáveis, funções e parâmetros.
 
@@ -86,7 +86,7 @@ complex64 complex128
 - Se não declarar valor: numéricos são `0`, bool é `false` e string é `""`.
 - Consigo transformar o tipo da variável usando `tipo(var)`.
 
-## Funções
+## Funções (Functions)
 
 Parecidas com C: `func nome(params tipo) retorno { codigo }`
 
@@ -101,7 +101,7 @@ func split(sum int) (x, y int) {
 }
 ```
 
-## Variáveis
+## Variáveis (Variables)
 
 `var x tipo` declara o tipo da variável (e ela já nasce com o valor zero do tipo).
 
@@ -143,7 +143,7 @@ a, b := 1, "dois"
 > Em C#, `var x = 10;` é parecido com o `:=`/`var x = ...` do Go (inferência), e
 > declarar o tipo explícito (`int x;`) lembra o `var x int`.
 
-## Constantes
+## Constantes (Constants)
 
 Declaro o tipo como nas variáveis, mas **não** posso usar `:=`.
 
@@ -153,7 +153,7 @@ const pi = 3.14
 
 Constantes numéricas são valores de alta precisão. Constantes não tipadas assumem o tipo necessário pelo contexto.
 
-## Loops
+## Laços (Loops)
 
 Só existe o `for`, parecido com o do C. Não tenho parênteses entre os componentes:
 
@@ -178,7 +178,7 @@ for x < 189 {
 Ou seja, quando quero um while, uso o `for` sem o `init` e o `post`. Mas devo tomar
 cuidado para evitar loops infinitos (sem condição de parada e/ou atualização).
 
-## Condicionais
+## Condicionais (Conditionals)
 
 Ifs também têm estrutura parecida — sem parênteses na expressão:
 
@@ -240,7 +240,7 @@ default:
 - Os cases não precisam ser constantes, e os valores não precisam ser inteiros.
 - `switch` sem condição equivale a `switch true` — uma forma limpa de if-then-else.
 
-## Defers
+## Adiamentos (Defers)
 
 Adia a execução de uma função até que as funções em volta terminem (retornem).
 
@@ -255,7 +255,7 @@ fmt.Println("olá")
 // imprime: olá -> mundo
 ```
 
-## Pointers
+## Ponteiros (Pointers)
 
 Um ponteiro armazena o **endereço de memória** de um valor.
 
@@ -275,7 +275,7 @@ fmt.Println(i)  // 21
 > Em C# isso lembra a diferença entre tipos por referência e o uso de `ref`/`out`:
 > passar um `*T` permite alterar o valor original de quem chamou.
 
-## Structs
+## Estruturas (Structs)
 
 Uma coleção de atributos/campos.
 
@@ -307,7 +307,7 @@ p2 := Pessoa{Nome: "Joao"} // Idade fica 0
 > Em C# uma `struct` do Go é mais parecida com uma `class`/`record` simples de dados —
 > mas sem herança; o reuso em Go vem de composição.
 
-## Arrays
+## Vetores (Arrays)
 
 `[n]T` é um vetor de `n` valores do tipo `T`:
 
@@ -318,7 +318,7 @@ var a [10]int
 - **Não** podem ter o tamanho modificado (o tamanho faz parte do tipo).
 - Acesso os elementos pelo índice: `a[1]`.
 
-## Slices
+## Fatias (Slices)
 
 Tamanho dinâmico (os mais comuns). `[]T` é um slice de elementos do tipo `T`.
 
@@ -363,7 +363,7 @@ func append(s []T, vs ...T) []T
   Se o array subjacente for menor do que o necessário, o Go realoca em outro maior
   automaticamente e o slice passa a apontar para ele.
 
-## Range
+## Intervalo (Range)
 
 Forma do `for` que itera sobre vetores e slices.
 
@@ -383,7 +383,7 @@ for _, value := range pow  // só o valor
 for i := range pow         // só o índice (sem o segundo)
 ```
 
-## Maps
+## Mapas (Maps)
 
 Mapeia chaves para valores (hash).
 
@@ -419,7 +419,7 @@ elem, ok = m[key]
 elem, ok := m[key]
 ```
 
-## Functions
+## Funções como valores (Functions)
 
 Funções são **valores** também: podem ser passadas como outros valores, usadas como
 argumentos de funções e como retornos.
@@ -446,7 +446,7 @@ func contador() func() int {
 
 > Em C# isso equivale a delegates / `Func<>` e às lambdas que capturam variáveis do escopo.
 
-## Strings
+## Cadeias de caracteres (Strings)
 
 Posso tratar strings de forma parecida com slices e arrays: acesso por índice `s[x]`,
 pego o tamanho com `len(s)` e faço slice com `s[ini:fim]`.
@@ -478,7 +478,7 @@ strings.Split("a,b,c", ",")        // []string{"a", "b", "c"}
 > `string`/`System.String` (`ToUpper`, `Contains`, `Split`...). A diferença é que indexar
 > uma string em Go te dá um `byte`, não um `char`.
 
-## Sets
+## Conjuntos (Sets)
 
 Não tenho sets nativos em Go. Por isso simulo o funcionamento com um `map`, usando a
 **chave** como o tipo dos elementos e o **valor** como `bool`. Assim a chave guarda o
