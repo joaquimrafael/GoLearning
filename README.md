@@ -445,3 +445,35 @@ func contador() func() int {
 ```
 
 > Em C# isso equivale a delegates / `Func<>` e às lambdas que capturam variáveis do escopo.
+
+## Strings
+
+Posso tratar strings de forma parecida com slices e arrays: acesso por índice `s[x]`,
+pego o tamanho com `len(s)` e faço slice com `s[ini:fim]`.
+
+```go
+s := "golang"
+fmt.Println(len(s))   // 6
+fmt.Println(s[1:4])   // "ola"
+```
+
+- **Atenção:** o índice `s[x]` retorna um `byte` (um `uint8`), **não** um caractere. Por
+  isso `len(s)` conta **bytes**, não letras — e em caracteres fora do ASCII (acentos,
+  emojis) um único caractere pode ocupar mais de um byte.
+- Strings em Go são **imutáveis**: não consigo fazer `s[0] = 'x'`. Para "alterar", crio
+  uma nova string.
+- É recomendado **evitar fazer slice direto** e preferir as funções do pacote `strings`
+  (`strings.Contains`, `strings.Split`, `strings.ToUpper`, `strings.Replace`, etc.), que
+  são mais legíveis e seguras:
+
+```go
+import "strings"
+
+strings.ToUpper("golang")          // "GOLANG"
+strings.Contains("golang", "lan")  // true
+strings.Split("a,b,c", ",")        // []string{"a", "b", "c"}
+```
+
+> Em C# a `string` também é imutável, e o pacote `strings` faz o papel dos métodos de
+> `string`/`System.String` (`ToUpper`, `Contains`, `Split`...). A diferença é que indexar
+> uma string em Go te dá um `byte`, não um `char`.
