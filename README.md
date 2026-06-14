@@ -477,3 +477,38 @@ strings.Split("a,b,c", ",")        // []string{"a", "b", "c"}
 > Em C# a `string` também é imutável, e o pacote `strings` faz o papel dos métodos de
 > `string`/`System.String` (`ToUpper`, `Contains`, `Split`...). A diferença é que indexar
 > uma string em Go te dá um `byte`, não um `char`.
+
+## Sets
+
+Não tenho sets nativos em Go. Por isso simulo o funcionamento com um `map`, usando a
+**chave** como o tipo dos elementos e o **valor** como `bool`. Assim a chave guarda o
+elemento (que é único, pois chaves de map não se repetem) e o `bool` indica que ele está
+presente:
+
+```go
+set := make(map[string]bool)
+
+// adicionar
+set["go"] = true
+set["c#"] = true
+
+// remover
+delete(set, "c#")
+
+// testar se existe (two-value assignment, como em maps)
+if set["go"] {
+    fmt.Println("go está no set")
+}
+
+// tamanho do set
+fmt.Println(len(set)) // 1
+```
+
+- Como em qualquer map, ler uma chave que não existe devolve o valor zero do `bool`
+  (`false`) — então `set["x"]` já responde se `x` está ou não no set, sem dar erro.
+- Um idiomatismo comum é usar `map[T]struct{}` em vez de `bool` quando só me importa a
+  presença (não o valor), porque `struct{}` não ocupa memória. Aí testo com o
+  `_, ok := set[x]`. Mas começar com `bool` é mais simples de ler.
+
+> Em C# isso equivale ao `HashSet<T>`. Em Go não há um tipo pronto, então o `map` faz
+> esse papel.
