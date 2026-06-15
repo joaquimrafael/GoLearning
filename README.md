@@ -843,3 +843,35 @@ func main() {
 - O `Bounds()` me dá o retângulo que delimita a imagem, e o `At(x, y)` devolve a
   `color.Color` daquele pixel (que tem o método `RGBA()` para extrair os componentes).
   
+## Funções genéricas (Generic functions)
+
+Posso escrever funções que funcionam com **múltiplos tipos** usando **parâmetros de
+tipo**. Eles aparecem entre **colchetes**, antes da lista de argumentos da função:
+
+```go
+func Index[T comparable](s []T, x T) int
+```
+
+- Isso significa que `s` é um slice de qualquer tipo `T` que satisfaça a restrição
+  embutida `comparable`. O `x` também é um valor do mesmo tipo `T`.
+- `comparable` é uma restrição (constraint) útil que permite usar os operadores `==` e
+  `!=` em valores daquele tipo. No exemplo, uso isso para comparar um valor com cada
+  elemento do slice até achar uma correspondência.
+- Assim, essa `Index` funciona para **qualquer tipo** que suporte comparação.
+
+> Em C# isso lembra os **generics** (`int Index<T>(T[] s, T x)`), e a restrição
+> `comparable` lembra um `where T : ...` limitando o que o tipo pode fazer.
+
+## Tipos genéricos (Generic types)
+
+Um tipo também pode ser **parametrizado** com um parâmetro de tipo. Isso é útil para
+implementar **estruturas de dados genéricas** (que servem para vários tipos):
+
+```go
+// uma pilha (stack) que guarda qualquer tipo T
+type Stack[T any] struct {
+    itens []T
+}
+```
+
+> Em C# isso equivale a uma classe genérica, como `Stack<T>`.
