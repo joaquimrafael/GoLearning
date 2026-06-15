@@ -565,3 +565,280 @@ fmt.Print(linha)
 > Em C# isso lembra o `Console.ReadLine()` (linha inteira, como o `Scanner`) e o
 > `Console.Read()` (caractere a caractere). O `fmt.Scan`, lendo por espaços direto nas
 > variáveis, parece com um `Console.ReadLine().Split(' ')` já convertido para os tipos.
+
+## Métodos (Methods)
+
+Em Go não tenho suporte nativo a classes, mas posso criar **métodos** em tipos. Um
+método é só uma função com um argumento especial, o **receiver** (recebedor), que
+aparece na sua própria lista de argumentos, entre a palavra `func` e o nome do método.
+
+```go
+type Pessoa struct {
+    Nome  string
+    Idade int
+}
+
+// (p Pessoa) é o receiver
+func (p Pessoa) Saudacao() string {
+    return "Olá, " + p.Nome
+}
+```
+
+- Chamo o método a partir de uma variável do tipo criado: `pessoa.Saudacao()`.
+- Posso declarar métodos em tipos que **não** são struct também.
+- Só consigo declarar um método com um receiver cujo tipo está definido **no mesmo
+  pacote** que o método. Não dá para declarar método em tipos de outro pacote (inclui os
+  tipos embutidos, como `int`).
+
+### Uso de recebedor de ponteiro ou de valor (Pointer vs value receiver)
+
+Posso declarar métodos com **ponteiro recebedor** (`*T`). Métodos com pointer receiver
+conseguem **modificar** o valor para o qual o receiver aponta:
+
+```go
+func (p *Pessoa) Aniversario() {
+    p.Idade++ // altera a struct original
+}
+```
+
+- Funções que recebem um **ponteiro** como argumento só aceitam um ponteiro. Já os
+  métodos com **pointer receiver** aceitam tanto um valor quanto um ponteiro na chamada
+  (o Go ajusta automaticamente).
+- O contrário também vale: funções que recebem um **valor** só aceitam aquele tipo de
+  valor, mas métodos com **value receiver** aceitam valor ou ponteiro na chamada.
+
+Uso o **ponteiro** quando:
+
+- preciso **modificar** o valor para o qual o receiver aponta, ou
+- quero **evitar copiar** o valor a cada chamada (mais eficiente para uma struct com
+  vários campos).
+
+> Em C#, isso lembra métodos de instância: o value receiver é como um tipo de valor
+> copiado, e o pointer receiver é como trabalhar sobre a referência do objeto original.
+
+## Interfaces (Interfaces)
+
+Uma **interface** é um conjunto de assinaturas de método. Um valor de interface pode
+armazenar **qualquer tipo** que implemente todos os métodos dessa interface.
+
+```go
+type Saudavel interface {
+    Saudacao() string
+}
+```
+
+- Um tipo implementa uma interface só por **implementar os seus métodos** — não há
+  declaração explícita de intenção, não existe palavra-chave `implements`.
+- Por serem **implícitas**, a definição da interface fica desacoplada da implementação,
+  que pode aparecer em qualquer pacote sem combinação prévia.
+- Por baixo dos panos, um valor de interface é uma tupla `(value, type)` — guarda um
+  valor de um tipo concreto subjacente. Chamar um método na interface executa o método de
+  mesmo nome no tipo concreto que ela guarda.
+- Para um mesmo tipo implementar uma interface, devo usar value receiver **ou** pointer
+  receiver em **todos** os métodos — não posso alternar, senão a interface não aceita o
+  tipo.
+- Se o valor concreto dentro da interface for `nil`, o método é chamado com um **nil
+  receiver** (não dá panic sozinho). Já uma interface `nil` de verdade não guarda nem
+  valor nem tipo concreto.
+- Interfaces com **0 métodos** são a interface vazia (`interface{}`) e podem guardar
+  valores de qualquer tipo.
+
+> Em C# a interface é parecida, mas lá preciso declarar `: IMinhaInterface`. Em Go a
+> implementação é implícita. A `interface{}` lembra o `object`/`dynamic`.
+
+### Afirmações de tipo (Type Assertions)
+
+Uma type assertion dá acesso ao valor concreto subjacente de uma interface:
+
+```go
+t := i.(T)        // panic se i não for T
+t, ok := i.(T)    // ok = false se não for (sem panic)
+```
+
+### Switch de tipos (Type switch)
+
+Construção que permite uma sequência de type assertions de uma vez:
+
+```go
+switch v := i.(type) {
+case int:
+    fmt.Println("int:", v)
+case string:
+    fmt.Println("string:", v)
+default:
+    fmt.Println("outro tipo")
+}
+```
+
+### Stringers
+
+Interface ubíqua definida pelo pacote `fmt`. Um **Stringer** é um tipo que sabe se
+descrever como string. O `fmt` (e muitos outros pacotes) procura por essa interface na
+hora de imprimir valores:
+
+```go
+type Stringer interface {
+    String() string
+}
+
+func (p Pessoa) String() string {
+    return fmt.Sprintf("%s (%d anos)", p.Nome, p.Idade)
+}
+```
+
+> Em C# isso é exatamente o `ToString()` sobrescrito.
+
+## Erros (Errors)
+
+Programas em Go tratam estado de erro com **valores de `error`**. O tipo `error` é uma
+interface embutida, parecida com o `fmt.Stringer`:
+
+```go
+type error interface {
+    Error() string
+}
+```
+
+- Funções muitas vezes retornam um `error`, e quem chama deve saber tratá-lo (normalmente
+  comparando com `nil`):
+
+```go
+if err != nil {
+    fmt.Println("deu erro:", err)
+    return
+}
+```
+
+**Exemplo de uso:** uma função que retorna um erro. O jeito mais simples de criar um é
+com `errors.New` (ou `fmt.Errorf`, que permite formatar):
+
+```go
+import (
+    "errors"
+    "fmt"
+)
+
+func dividir(a, b float64) (float64, error) {
+    if b == 0 {
+        return 0, errors.New("divisão por zero")
+    }
+    return a / b, nil
+}
+
+func main() {
+    resultado, err := dividir(10, 0)
+    if err != nil {
+        fmt.Println("erro:", err) // erro: divisão por zero
+        return
+    }
+    fmt.Println(resultado)
+}
+```
+
+**Erro customizado:** como `error` é só uma interface, qualquer tipo com o método
+`Error() string` vira um erro. Assim posso carregar mais dados junto:
+
+```go
+type ErroValidacao struct {
+    Campo string
+    Msg   string
+}
+
+func (e *ErroValidacao) Error() string {
+    return fmt.Sprintf("%s: %s", e.Campo, e.Msg)
+}
+
+func validarIdade(idade int) error {
+    if idade < 0 {
+        return &ErroValidacao{Campo: "idade", Msg: "não pode ser negativa"}
+    }
+    return nil
+}
+```
+
+> Em C# o normal é lançar **exceções**; em Go o erro é um valor retornado que eu checo na
+> mão. O `ErroValidacao` lembra criar uma classe que herda de `Exception`, mas aqui basta
+> implementar o método `Error()`.
+
+## Leitores (Readers)
+
+O pacote `io` define a interface `io.Reader`, que representa a ponta de leitura de um
+fluxo de dados. A biblioteca padrão tem muitas implementações dela: arquivos, conexões de
+rede, compressores, cifras e outros.
+
+A `io.Reader` tem o método `Read`:
+
+```go
+func (T) Read(b []byte) (n int, err error)
+```
+
+- O `Read` preenche o byte slice dado com dados e retorna o número de bytes preenchidos e
+  um valor de erro. Retorna o erro `io.EOF` quando o fluxo termina.
+
+**Exemplo de uso:** o `strings.NewReader` me dá um `io.Reader` a partir de uma string.
+Leio em pedaços para um buffer (`make([]byte, 8)`) num loop, até chegar no `io.EOF`:
+
+```go
+import (
+    "fmt"
+    "io"
+    "strings"
+)
+
+func main() {
+    r := strings.NewReader("Olá, Go!")
+    buf := make([]byte, 8) // leio de 8 em 8 bytes
+
+    for {
+        n, err := r.Read(buf)
+        fmt.Printf("li %d bytes: %q\n", n, buf[:n])
+
+        if err == io.EOF { // fim do fluxo
+            break
+        }
+    }
+}
+```
+
+- Reparo que uso `buf[:n]` (e não `buf` inteiro): só os primeiros `n` bytes foram
+  preenchidos nesta leitura; o resto do buffer pode ter lixo da iteração anterior.
+
+> Em C# isso lembra a `Stream` (ex.: `StreamReader`) — leio o fluxo aos poucos para um
+> buffer até acabar.
+
+## Imagens (Images)
+
+O pacote `image` define a interface `Image`:
+
+```go
+package image
+
+type Image interface {
+    ColorModel() color.Model
+    Bounds() Rectangle
+    At(x, y int) color.Color
+}
+```
+
+**Exemplo de uso:** crio uma imagem RGBA com `image.NewRGBA` (ela já implementa a
+interface `Image`) e uso os métodos `Bounds()` e `At()` para inspecioná-la:
+
+```go
+import (
+    "fmt"
+    "image"
+)
+
+func main() {
+    m := image.NewRGBA(image.Rect(0, 0, 100, 100))
+
+    bounds := m.Bounds()
+    fmt.Println(bounds)           // (0,0)-(100,100)
+
+    cor := m.At(0, 0).RGBA()      // cor do pixel (0,0): r, g, b, a
+    fmt.Println(cor)              // 0 0 0 0 (preto transparente, o valor zero)
+}
+```
+
+- O `Bounds()` me dá o retângulo que delimita a imagem, e o `At(x, y)` devolve a
+  `color.Color` daquele pixel (que tem o método `RGBA()` para extrair os componentes).
