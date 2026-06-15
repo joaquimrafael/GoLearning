@@ -842,3 +842,4 @@ func main() {
 
 - O `Bounds()` me dá o retângulo que delimita a imagem, e o `At(x, y)` devolve a
   `color.Color` daquele pixel (que tem o método `RGBA()` para extrair os componentes).
+  
