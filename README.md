@@ -875,3 +875,114 @@ type Stack[T any] struct {
 ```
 
 > Em C# isso equivale a uma classe genérica, como `Stack<T>`.
+
+## Goroutines
+
+Uma **goroutine** é uma thread leve gerenciada pelo runtime do Go. É o que me permite
+trabalhar com concorrência nos programas.
+
+- Para iniciar uma nova goroutine, uso a palavra-chave `go` antes da chamada:
+
+```go
+go f(x, y, z) // roda f concorrentemente
+```
+
+- A avaliação de `f`, `x`, `y` e `z` acontece na goroutine **atual**; só a **execução**
+  de `f` é que acontece na **nova** goroutine.
+- Todas as goroutines rodam no mesmo espaço de endereçamento, então o acesso à memória
+  compartilhada precisa ser **sincronizado**. O pacote `sync` traz primitivas úteis para
+  isso (ver `sync.Mutex` abaixo), mas em Go a forma mais idiomática costuma ser usar
+  **channels**.
+
+> Em C# isso lembra `Task.Run`/`Thread`, mas a goroutine é muito mais barata — posso ter
+> milhares delas.
+
+## Canais (Channels)
+
+Um **channel** é um conduíte **tipado** que permite a comunicação entre goroutines:
+mando ou recebo valores com o operador de canal `<-`. Os dados fluem na direção da seta.
+
+```go
+ch <- v    // envia v para o canal ch
+v := <-ch  // recebe do canal ch e atribui o valor a v
+```
+
+- Assim como maps e slices, um canal precisa ser criado antes do uso, com `make`:
+
+```go
+ch := make(chan int)
+```
+
+- Por padrão, envios e recebimentos **bloqueiam** até o outro lado estar pronto. É isso
+  que deixa as goroutines se sincronizarem sem locks ou variáveis de condição explícitas.
+
+### Canais com buffer (Buffered channels)
+
+Canais podem ter **buffer**. Passo o tamanho do buffer como segundo argumento do `make`:
+
+```go
+ch := make(chan int, 100)
+```
+
+- O envio só bloqueia quando o buffer está **cheio**; o recebimento só bloqueia quando o
+  buffer está **vazio**.
+
+### Range e Close
+
+Quem envia pode **fechar** um canal para indicar que não vai mandar mais valores. Quem
+recebe consegue testar se o canal foi fechado usando o segundo valor do recebimento:
+
+```go
+v, ok := <-ch // ok é false se o canal está fechado e não há mais valores
+```
+
+- O laço `for i := range c` recebe valores do canal repetidamente até ele ser **fechado**.
+- **Só quem envia** deve fechar o canal, nunca quem recebe. Enviar num canal já fechado
+  causa **panic**.
+- Canais não são como arquivos: normalmente **não** preciso fechá-los. Fechar só é
+  necessário quando quem recebe precisa saber que não vêm mais valores — por exemplo,
+  para terminar um laço `range`.
+
+### Select
+
+O `select` me permite esperar **várias** operações de comunicação ao mesmo tempo.
+
+- Ele **bloqueia** até que um dos `case` possa rodar; se mais de um estiver pronto,
+  escolhe um **aleatoriamente**.
+- O `case default` roda quando nenhum outro `case` está pronto — útil para tentar um
+  envio/recebimento **sem bloquear**:
+
+```go
+select {
+case i := <-c:
+    // usa i
+default:
+    // receber de c bloquearia agora
+}
+```
+
+## Exclusão mútua (Sync.Mutex)
+
+Um **mutex** (mutual exclusion) é uma estrutura que impede que duas goroutines acessem o
+mesmo recurso ao mesmo tempo, evitando **race condition** e **deadlock**.
+
+- A biblioteca padrão oferece o `sync.Mutex`, com dois métodos: `Lock` e `Unlock`.
+- Posso usar `defer` para garantir que o mutex seja destravado ao fim da função.
+
+```go
+import "sync"
+
+type Contador struct {
+    mu sync.Mutex
+    n  int
+}
+
+func (c *Contador) Inc() {
+    c.mu.Lock()
+    defer c.mu.Unlock() // destrava ao sair, mesmo se der panic
+    c.n++
+}
+```
+
+> Em C# isso lembra o `lock (obj) { ... }` (que usa um `Monitor` por baixo) ou um
+> `Mutex`/`SemaphoreSlim` para proteger uma seção crítica.
