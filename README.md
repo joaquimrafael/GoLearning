@@ -986,3 +986,25 @@ func (c *Contador) Inc() {
 
 > Em C# isso lembra o `lock (obj) { ... }` (que usa um `Monitor` por baixo) ou um
 > `Mutex`/`SemaphoreSlim` para proteger uma seção crítica.
+
+## Versionamento de módulos (Module versioning)
+
+Em Go **não existe um "publish"** como o `dotnet pack`/NuGet. A versão de um módulo é
+definida por uma **tag de git** seguindo o **SemVer** (`vMAJOR.MINOR.PATCH`) — o prefixo
+`v` faz parte do nome da tag. Publicar = dar `git push` da tag para o repositório.
+
+```sh
+git commit -m "Release v1.0.0"  # commit que será a versão
+git tag v1.0.0                   # cria a tag SemVer
+git push origin v1.0.0           # "publica" a versão
+```
+
+- Depois disso, qualquer um (e eu mesmo) consome a versão com
+  `go get caminho/do/modulo@v1.0.0`.
+- O **caminho do módulo** (no `go.mod`) precisa bater com o repositório. Se o módulo for a
+  raiz do repo, a tag é simplesmente `v1.0.0`. Se ele estiver numa **subpasta**, a tag
+  leva o prefixo da subpasta (ex.: `exercices/packagesandmodules/v1.0.0`).
+
+> Em C# eu geraria um `.nupkg` e publicaria no nuget.org, com a versão no `.csproj`. Em Go
+> não há pacote a empacotar: o "pacote publicado" é o próprio código no git, e a versão é a
+> tag.
